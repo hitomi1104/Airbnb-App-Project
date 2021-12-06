@@ -504,13 +504,14 @@ with lin3:
 '**observation**'
 '''
 As you can observe from the cross validation scores, Linear Regression is not working using dummified data. And, it makes a lot of sense since
-after the dummifications, most of the values in data turns into 0 or 1 which makes a **sparse matrix**.
+after the dummifications, most of the values in data turns into 0 which makes it a **sparse matrix**
+
 As you can see from the correlatiion top 15 above, those are the variables that we should consider more when predicting the price!
 So, I will regularization techniques to make use of the dummified data. 
 '''
 ################################################################################
 # Ridge
-st.subheader('Regularizing the Linear Regression')
+st.subheader('Regularizing the model')
 reg1, reg2, reg3 = st.columns((3))
 
 with reg1:

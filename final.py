@@ -34,7 +34,7 @@ import string
 plt.style.use('ggplot')
 alt.data_transformers.disable_max_rows()
 # SETTING PAGE CONFIG TO WIDE MODE
-st.set_page_config(layout="wide")
+# st.set_page_config(layout="wide")
 # st.balloons()
 
 # LAYING OUT THE TOP SECTION OF THE APP
@@ -42,17 +42,21 @@ row1_1, row1_2 = st.columns((2, 3))
 
 with row1_1:
     st.title("Airbnb in LA")
-    st.image('airbnb.jpeg', width = 400, caption = "Where are you staying tonight?")
+    st.image('airbnb.jpeg', width = 280, caption = "Where are you staying tonight?")
     'What makes the lists of Airbnb more expensive than the others 💭'
 
 with row1_2:
-    st.write(
-        """
-        Data Source: http://insideairbnb.com/get-the-data.html
-        
-        This App explores Airbnb data which someone webscraped from the actual website before 
-        By sliding the slider on the left you can view different slices of price and explore different trends.
-        """)
+
+    """
+    Data Source: http://insideairbnb.com/get-the-data.html
+    
+    This App explores Airbnb data which someone webscraped from the actual website before 
+    By sliding the slider on the left you can view different slices of price and explore different trends.
+    """
+
+
+
+
 
 # LOADING DATA
 
@@ -182,6 +186,13 @@ with bar1:
     '''[reference] stackoverflow https://stackoverflow.com/questions/6541123/improve-subplot-size-spacing-with-many-subplots-in-matplotlib'''
     fig.tight_layout()
     st.pyplot(fig)
+
+    '''
+    In this part, I made distribution plots for both numerical and categorical data and sorted values in descending order
+    So, for instance in the variable neighborhood, I found "Venice" had the most listings.
+    I was surprised to see that most of the listings had the restriction to stay more than 30 minimun nights! Also, most of the listings are
+    listed for the first time but most of them are booked when I observe the number of host listings and availability variables. 
+    '''
 with bar2:
     # Showing all the unique values
     '''
@@ -191,61 +202,54 @@ with bar2:
     df.drop(columns='room_type', inplace=True)
     for col in df.columns:
         st.write(' - {} : {} unique values'.format(col, len(df[col].unique())))
-    '''
-    In this part, I made distribution plots for both numerical and categorical data and sorted values in descending order
-    So, for instance in the variable neighborhood, I found "Venice" had the most listings.
-    I was surprised to see that most of the listings had the restriction to stay more than 30 minimun nights! Also, most of the listings are
-    listed for the first time but most of them are booked when I observe the number of host listings and availability variables. 
 
-    
-    '''
 
 ##########################################################################################################################
 st.subheader('Heatmaps')
 '''[reference]: Altair documentation https://altair-viz.github.io/gallery/layered_heatmap_text.html '''
 
+cor_data = (df.drop(columns=['name', 'neighbourhood_group', 'neighbourhood'])
+            .corr().stack()
+            .reset_index()
+            .rename(columns={0: 'correlation', 'level_0': 'variable', 'level_1': 'variable2'}))
+cor_data['correlation_label'] = cor_data['correlation'].map('{:.2f}'.format)  # Round to 2 decimal
+
+base = alt.Chart(cor_data).encode(
+    x='variable2:O',
+    y='variable:O'
+).properties(
+    width=500,
+    height=400
+)
+
+text = base.mark_text().encode(
+    text='correlation_label',
+    color=alt.condition(
+        alt.datum.correlation > 0.5,
+        alt.value('white'),
+        alt.value('black')
+    )
+)
+
+
+
+cor_plot = base.mark_rect().encode(
+    color='correlation:Q'
+)
+
+
+cor_plot + text
+
 cor1, cor2 = st.columns((3,2))
 with cor1:
-
-    cor_data = (df.drop(columns=['name', 'neighbourhood_group', 'neighbourhood'])
-                .corr().stack()
-                .reset_index()
-                .rename(columns={0: 'correlation', 'level_0': 'variable', 'level_1': 'variable2'}))
-    cor_data['correlation_label'] = cor_data['correlation'].map('{:.2f}'.format)  # Round to 2 decimal
-
-    base = alt.Chart(cor_data).encode(
-        x='variable2:O',
-        y='variable:O'
-    ).properties(
-        width=700,
-        height=700
-    )
-
-    text = base.mark_text().encode(
-        text='correlation_label',
-        color=alt.condition(
-            alt.datum.correlation > 0.5,
-            alt.value('white'),
-            alt.value('black')
-        )
-    )
-
-
-
-    cor_plot = base.mark_rect().encode(
-        color='correlation:Q'
-    )
-
-
-    cor_plot + text
-with cor2:
-    # Top 10 correlations
+    # Top correlations
     corr_matrix = df.corr()
     d_top = corr_matrix['price'].sort_values(ascending=False)
-    st.write('Top 10 Correlations are: \n', d_top.head(10))
-    # Bottom 10 correlations
+    st.write('Top Correlations are: \n', d_top.head(10))
+with cor2:
+    # Bottom correlations
     d_down = corr_matrix['price'].sort_values(ascending=True)
-    st.write('Top 10 Correlations are: \n', d_down.head(10))
+    st.write('Top Negative Correlations are: \n', d_down.head(10))
 
 ################################################################# MAP #########################################################################
 st.subheader('Exploring reginons with Maps')
@@ -292,55 +296,19 @@ with map_2:
     folium_static(m)
     st.markdown("[reference] https://python-visualization.github.io/folium/plugins.html")
 
-'''
-# CREATING FUNCTION FOR MAPS
-from Streamlit gallary example for pydeck
-def map(data, lat, lon, zoom):
-    st.write(pdk.Deck(
-        map_style="mapbox://styles/mapbox/light-v9",
-        initial_view_state={
-            "latitude": lat,
-            "longitude": lon,
-            "zoom": zoom,
-            "pitch": 50,
-        },
-        layers=[
-            pdk.Layer(
-                "HexagonLayer",
-                data=data,
-                get_position=["lon", "lat"],
-                radius=100,
-                elevation_scale=4,
-                elevation_range=[0, 1000],
-                pickable=True,
-                extruded=True,
-            ),
-        ]
-    ))
-
-
-
-la = [34, -118]
-zoom_level = 12
-midpoint = (np.average(df["latitude"]), np.average(df["longitude"]))
-st.write(map(data, midpoint[0], midpoint[1], 11))
-'''
-# FILTERING DATA FOR THE HISTOGRAM
-# filtered = df['price']
-# hist = np.histogram(filtered, bins=60, range=(0, 60))[0]
 
 ################################################################################ NLP  ################################################################################
 # s = st.slider("Select the range of the price", value=[0, 500])
 
 # vectorize the word using tfidvectorizer from sklearn
+st.subheader("Vectorizing the columns name and show the frequent words using WordCloud")
 tf = TfidfVectorizer(stop_words='english', min_df=3)
 tf.fit(df['name'])
 
 name_tf = tf.transform(df['name'])
 name_df = pd.DataFrame(name_tf.todense(), columns=tf.get_feature_names())
 
-
-tf1, tf2 = st.columns((1,3))
+tf1, tf2, tf3 = st.columns((2,3,1))
 
 with tf1:
     fig, ax = plt.subplots()
@@ -353,7 +321,7 @@ with tf2:
     fig, ax = plt.subplots()
     # Create and generate a word cloud image:
     Cloud = WordCloud(width=500, height=400,
-                      background_color='white',
+                      background_color='black',
                       stopwords=stopwords,
                       min_font_size=3,
                       min_word_length=0).generate_from_frequencies(top_texts)
@@ -364,6 +332,13 @@ with tf2:
     plt.imshow(Cloud, interpolation='bilinear')
     plt.axis("off")
     st.pyplot(fig)
+
+with tf3:
+    '''
+    Words that describe the type of the listings such as parking and studio, comfort and convinience such as cozy, near, and modern were top words.
+    
+    In the future, I am interested to see the difference in words among different prices of the listings. 
+    '''
 
 ################################################################################ ML  ################################################################################
 st.header("Applying ML to predict the price of the listed Airbnb houses")
@@ -431,35 +406,14 @@ with lr2:
     st.pyplot(fig)
 
 with lr3:
+    'error running it in streamlit not jupyter'
     '''
-    fig, ax = plt.subplot()
     lr_pred = lr.predict(X_test)
     sns.set_style("darkgrid")
-    plt.figure(figsize=(12, 10))
-    sns.regplot(lr_pred, y_test)
+    fig, ax = plt.subplot()
+    fig = sns.regplot(lr_pred, y_test)
     st.pyplot(fig)
     '''
-
-
-# Neuralnet
-'Neural net'
-model = keras.Sequential(
-    [
-        keras.layers.InputLayer(input_shape = (7,)),
-        keras.layers.Flatten(),
-        keras.layers.Dense(100, activation="sigmoid"),
-        keras.layers.Dense(100, activation="sigmoid"),
-        keras.layers.Dense(1,activation="relu")
-    ]
-)
-
-model.compile(
-    loss="mse",
-    optimizer=keras.optimizers.SGD(learning_rate=0.01),
-#     metrics=["accuracy"],
-)
-
-model.fit(X_train,y_train,epochs=10)
 
 
 ################################################################################
@@ -539,6 +493,7 @@ with lin2:
     st.pyplot(fig)
 
 with lin3:
+    'error running it in streamlit not jupyter'
     '''
     lr_pred = lr.predict(X_test)
     sns.set_style("darkgrid")
@@ -631,9 +586,10 @@ model = keras.Sequential(
     [
         keras.layers.InputLayer(input_shape = (265,)),
         keras.layers.Flatten(),
-        keras.layers.Dense(100, activation="sigmoid"),
-        keras.layers.Dense(100, activation="sigmoid"),
-        keras.layers.Dense(100, activation="sigmoid"),
+        keras.layers.Dense(1000, activation="relu"),
+        keras.layers.Dense(1000, activation="relu"),
+        keras.layers.Dense(1000, activation="relu"),
+        keras.layers.Dense(1000, activation="relu"),
         keras.layers.Dense(1,activation="linear")
     ]
 )
@@ -647,15 +603,34 @@ model.compile(
 history = model.fit(X_train,y_train,epochs=1000, validation_split=0.2, verbose=False)
 st.write(model.evaluate(X_test, y_test))
 
-fig, ax = plt.subplots()
-ax.plot(history.history['loss'])
-ax.plot(history.history['val_loss'])
-ax.set_ylabel('loss')
-ax.set_xlabel('epoch')
-ax.legend(['train', 'validation'], loc='upper right')
-st.pyplot(fig)
+nn1, nn2 = st.columns((2))
 
-st.write(model.summary())
+with nn1:
+
+    fig, ax = plt.subplots()
+    ax.plot(history.history['loss'])
+    ax.plot(history.history['val_loss'])
+    ax.set_ylabel('loss')
+    ax.set_xlabel('epoch')
+    ax.legend(['train', 'validation'], loc='upper right')
+    st.pyplot(fig)
+
+with nn2:
+    '''
+    - Comparing the loss between train and test, even though I can further try to improve my model to decrease the loss,
+    but so far model is not overfitting and running okay. 
+    - As the number of epochs increase, the loss of train sets are descreasing but the validation set. 
+    - I would try to find better nn models after the final week
+    '''
+
+
+
+
+
+
+
+
+
 
 
 

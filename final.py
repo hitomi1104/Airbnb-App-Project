@@ -46,9 +46,10 @@ with row1_1:
     'What makes the lists of Airbnb more expensive than the others 💭'
 
 with row1_2:
-
     """
-    Data Source: http://insideairbnb.com/get-the-data.html
+    - Check this out on [ my github] (https://github.com/hitomi1104/math10_final_project) 
+    * Data Source: 
+    http://insideairbnb.com/get-the-data.html
     
     This App explores Airbnb data which someone webscraped from the actual website before 
     By sliding the slider on the left you can view different slices of price and explore different trends.

@@ -30,7 +30,6 @@ from nltk.tokenize import word_tokenize
 from nltk.util import ngrams
 import string
 
-
 plt.style.use('ggplot')
 alt.data_transformers.disable_max_rows()
 # SETTING PAGE CONFIG TO WIDE MODE
@@ -42,7 +41,7 @@ row1_1, row1_2 = st.columns((2, 3))
 
 with row1_1:
     st.title("Airbnb in LA")
-    st.image('airbnb.jpeg', width = 280, caption = "Where are you staying tonight?")
+    st.image('airbnb.jpeg', width=280, caption="Where are you staying tonight?")
     'What makes the lists of Airbnb more expensive than the others 💭'
 
 with row1_2:
@@ -50,19 +49,15 @@ with row1_2:
     - Check this out on [ my github] (https://github.com/hitomi1104/math10_final_project) 
     * Data Source: 
     http://insideairbnb.com/get-the-data.html
-    
+
     This App explores Airbnb data which someone webscraped from the actual website before 
     By sliding the slider on the left you can view different slices of price and explore different trends.
     """
 
-
-
-
-
 # LOADING DATA
 
 # data = pd.read_csv('/Users/hitomihoshino/Desktop/DS/Projects/projects/Airbnb_LA/listings.csv')
-data = pd.read_csv('listings.csv')
+data = pd.read_csv('data/listings.csv')
 
 st.header('Data Dictionary')
 data_dict = {'id': 'Airbnbs unique identifier for the listing',
@@ -120,14 +115,13 @@ df = df[cols]
 
 df.head()
 
-
 ################################################################################ EDA   ################################################################################
 st.header('Exploratory Data Analysis')
 st.subheader('Distributions and statistical analysis of the target variable Price')
 '''
 Exploring the target variable which is price and see its distributions
 '''
-row1_1, row1_2 = st.columns((1,1))
+row1_1, row1_2 = st.columns((2))
 
 with row1_1:
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -162,26 +156,23 @@ with row1_2:
     "Kurtosis: %f" % df['price'].kurt()
     "Mode: %f" % df['price'].mode()
 
-
-
-
 ##########################################################################################################################
 st.subheader('Distributions and statistical analysis of all variables')
 st.caption('Exclusing the colulmn name which I will show it in wordcloud instead later')
-bar1, bar2 = st.columns((2,1))
+bar1, bar2 = st.columns((2, 1))
 
 with bar1:
     fig, ax = plt.subplots(3, 4, figsize=(20, 15))
-    df['minimum_nights'].value_counts().head(10).plot(ax=ax[0][0], kind='bar', title = 'Minimum night')
-    df['number_of_reviews'].value_counts().head(10).plot(ax=ax[0][1], kind='bar', title = 'Number of reviews')
-    df['number_of_host_listings'].value_counts().head(10).plot(ax=ax[0][2], kind='bar', title = 'Number of host listings')
-    df['availability'].value_counts().head(10).plot(ax=ax[0][3], kind='bar', title = 'Availability')
+    df['minimum_nights'].value_counts().head(10).plot(ax=ax[0][0], kind='bar', title='Minimum night')
+    df['number_of_reviews'].value_counts().head(10).plot(ax=ax[0][1], kind='bar', title='Number of reviews')
+    df['number_of_host_listings'].value_counts().head(10).plot(ax=ax[0][2], kind='bar', title='Number of host listings')
+    df['availability'].value_counts().head(10).plot(ax=ax[0][3], kind='bar', title='Availability')
 
-    df['reviews_year'].value_counts().head(10).plot(ax=ax[1][0], kind='bar', title = 'Reviews per year')
-    df['neighbourhood_group'].value_counts().head(10).plot(ax=ax[1][1], kind='bar', title = 'Neighborhood group')
-    df['neighbourhood'].value_counts().head(20).plot(ax=ax[1][2], kind='bar',  title = "Neighborhood")
-    df['latitude'].value_counts().head(10).plot(ax=ax[1][3], kind='bar', title = "Latitude")
-    df['longitude'].value_counts().head(10).plot(ax=ax[2][0], kind='bar', title = 'Longitude')
+    df['reviews_year'].value_counts().head(10).plot(ax=ax[1][0], kind='bar', title='Reviews per year')
+    df['neighbourhood_group'].value_counts().head(10).plot(ax=ax[1][1], kind='bar', title='Neighborhood group')
+    df['neighbourhood'].value_counts().head(20).plot(ax=ax[1][2], kind='bar', title="Neighborhood")
+    df['latitude'].value_counts().head(10).plot(ax=ax[1][3], kind='bar', title="Latitude")
+    df['longitude'].value_counts().head(10).plot(ax=ax[2][0], kind='bar', title='Longitude')
 
     # fixing spcaing between bar charts avoiding overlapping words
     '''[reference] stackoverflow https://stackoverflow.com/questions/6541123/improve-subplot-size-spacing-with-many-subplots-in-matplotlib'''
@@ -203,7 +194,6 @@ with bar2:
     df.drop(columns='room_type', inplace=True)
     for col in df.columns:
         st.write(' - {} : {} unique values'.format(col, len(df[col].unique())))
-
 
 ##########################################################################################################################
 st.subheader('Heatmaps')
@@ -232,16 +222,13 @@ text = base.mark_text().encode(
     )
 )
 
-
-
 cor_plot = base.mark_rect().encode(
     color='correlation:Q'
 )
 
-
 cor_plot + text
 
-cor1, cor2 = st.columns((3,2))
+cor1, cor2 = st.columns((3, 2))
 with cor1:
     # Top correlations
     corr_matrix = df.corr()
@@ -255,7 +242,7 @@ with cor2:
 ################################################################# MAP #########################################################################
 st.subheader('Exploring reginons with Maps')
 
-map_1, map_2 = st.columns((2, 2))
+map_1, map_2 = st.columns((2))
 
 with map_1:
     st.caption('Kmeans clustering of latitude and longitude')
@@ -284,19 +271,16 @@ with map_2:
     count = df_price[['latitude', 'longitude']]
     m = folium.Map([34, -118], zoom_start=7)
 
-
     plugins.Fullscreen(position='topright',  # Full screen
                        title='Click to Expand',
                        title_cancel='Click to Exit',
                        force_separate_button=True).add_to(m)
-
 
     plugins.MousePosition().add_to(m)  ## get coordinates.
     plugins.MarkerCluster(count).add_to(m)
     st.markdown("[reference] streamlit documentation of visualizing folium maps ")
     folium_static(m)
     st.markdown("[reference] https://python-visualization.github.io/folium/plugins.html")
-
 
 ################################################################################ NLP  ################################################################################
 # s = st.slider("Select the range of the price", value=[0, 500])
@@ -309,7 +293,7 @@ tf.fit(df['name'])
 name_tf = tf.transform(df['name'])
 name_df = pd.DataFrame(name_tf.todense(), columns=tf.get_feature_names())
 
-tf1, tf2, tf3 = st.columns((2,3,1))
+tf1, tf2, tf3 = st.columns((2, 3, 1))
 
 with tf1:
     fig, ax = plt.subplots()
@@ -318,7 +302,6 @@ with tf1:
     st.pyplot(fig)
 
 with tf2:
-
     fig, ax = plt.subplots()
     # Create and generate a word cloud image:
     Cloud = WordCloud(width=500, height=400,
@@ -337,7 +320,7 @@ with tf2:
 with tf3:
     '''
     Words that describe the type of the listings such as parking and studio, comfort and convinience such as cozy, near, and modern were top words.
-    
+
     In the future, I am interested to see the difference in words among different prices of the listings. 
     '''
 
@@ -416,12 +399,11 @@ with lr3:
     st.pyplot(fig)
     '''
 
-
 ################################################################################
 
 st.subheader("Part II: Prediction after dummifying categorical predictors")
 st.write('before dummifying')
-df_dum = df.drop(columns =['name'])
+df_dum = df.drop(columns=['name'])
 st.table(df_dum.head())
 
 df_dum = pd.get_dummies(df_dum,
@@ -436,12 +418,10 @@ st.table(df_dum.head())
 ################################################################################
 corr_matrix = df_dum.corr()
 
-
-
 d_top = corr_matrix['price'].sort_values(ascending=False)
 st.write('Top 15 correlated variables to price are: \n', d_top.head(15))
 
-#with lin2:
+# with lin2:
 st.subheader("Linear Regression")
 
 lin1, lin2, lin3 = st.columns((3))
@@ -467,6 +447,7 @@ with lin1:
 
     # Linear Regression
     from sklearn.linear_model import LinearRegression
+
     lr = LinearRegression()
     lr.fit(X_train, y_train)
     lr_cv = cross_val_score(lr, X_train, y_train, cv=5)
@@ -476,20 +457,17 @@ with lin1:
     st.write('Test Score:', lr.score(X_test, y_test))
 
 with lin2:
-
     # collect the model coefficients in a dataframe
     df_coef = pd.DataFrame(lr.coef_, index=X_train.columns,
                            columns=['coefficients'])
     # calculate the absolute values of the coefficients
     df_coef['coef_abs'] = df_coef.coefficients.abs()
 
-
-
     coefs = pd.concat([df_coef['coefficients'].sort_values().head(10),
-                         df_coef['coefficients'].sort_values().tail(10)])
+                       df_coef['coefficients'].sort_values().tail(10)])
 
     fig, ax = plt.subplots()
-    coefs.plot(kind = "barh", figsize=(12, 10))
+    coefs.plot(kind="barh", figsize=(12, 10))
     plt.title("Importance of coefficients")
     st.pyplot(fig)
 
@@ -506,7 +484,6 @@ with lin3:
 '''
 As you can observe from the cross validation scores, Linear Regression is not working using dummified data. And, it makes a lot of sense since
 after the dummifications, most of the values in data turns into 0 which makes it a **sparse matrix**
-
 As you can see from the correlatiion top 15 above, those are the variables that we should consider more when predicting the price!
 So, I will regularization techniques to make use of the dummified data. 
 '''
@@ -534,7 +511,6 @@ with reg1:
     st.write("Training Score:", model.score(X_train, y_train))
     st.write("Test Score:", model.score(X_test, y_test))
 
-
 with reg2:
     # Lasso
     "Lasso Regularization"
@@ -552,9 +528,6 @@ with reg2:
     model.fit(X_train, y_train)
     st.write("Training Score:", model.score(X_train, y_train))
     st.write("Test Score:", model.score(X_test, y_test))
-
-
-
 
 with reg3:
     # Elastic net
@@ -582,17 +555,17 @@ with reg3:
 - And seeing the both training and testing scores, all the regurilized models seem not overfitting
 '''
 
-
+ '''
 # NN
 model = keras.Sequential(
     [
-        keras.layers.InputLayer(input_shape = (265,)),
+        keras.layers.InputLayer(input_shape=(265,)),
         keras.layers.Flatten(),
         keras.layers.Dense(1000, activation="relu"),
         keras.layers.Dense(1000, activation="relu"),
         keras.layers.Dense(1000, activation="relu"),
         keras.layers.Dense(1000, activation="relu"),
-        keras.layers.Dense(1,activation="linear")
+        keras.layers.Dense(1, activation="linear")
     ]
 )
 
@@ -602,13 +575,12 @@ model.compile(
     metrics=['mean_absolute_error']
 )
 
-history = model.fit(X_train,y_train,epochs=1000, validation_split=0.2, verbose=False)
+history = model.fit(X_train, y_train, epochs=1000, validation_split=0.2, verbose=False)
 st.write(model.evaluate(X_test, y_test))
 
 nn1, nn2 = st.columns((2))
 
 with nn1:
-
     fig, ax = plt.subplots()
     ax.plot(history.history['loss'])
     ax.plot(history.history['val_loss'])
@@ -618,12 +590,13 @@ with nn1:
     st.pyplot(fig)
 
 with nn2:
-    '''
+    
     - Comparing the loss between train and test, even though I can further try to improve my model to decrease the loss,
     but so far model is not overfitting and running okay. 
     - As the number of epochs increase, the loss of train sets are descreasing but the validation set. 
     - I would try to find better nn models after the final week
-    '''
+    
+'''
 
 
 
@@ -642,3 +615,18 @@ with nn2:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

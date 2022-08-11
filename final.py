@@ -555,51 +555,6 @@ with reg3:
 - And seeing the both training and testing scores, all the regurilized models seem not overfitting
 '''
 
-# NN
-model = keras.Sequential(
-    [
-        keras.layers.InputLayer(input_shape=(265,)),
-        keras.layers.Flatten(),
-        keras.layers.Dense(1000, activation="relu"),
-        keras.layers.Dense(1000, activation="relu"),
-        keras.layers.Dense(1000, activation="relu"),
-        keras.layers.Dense(1000, activation="relu"),
-        keras.layers.Dense(1, activation="linear")
-    ]
-)
-
-model.compile(
-    loss='mean_absolute_error',
-    optimizer='adam',
-    metrics=['mean_absolute_error']
-)
-
-history = model.fit(X_train, y_train, epochs=1000, validation_split=0.2, verbose=False)
-st.write(model.evaluate(X_test, y_test))
-
-nn1, nn2 = st.columns((2))
-
-with nn1:
-    fig, ax = plt.subplots()
-    ax.plot(history.history['loss'])
-    ax.plot(history.history['val_loss'])
-    ax.set_ylabel('loss')
-    ax.set_xlabel('epoch')
-    ax.legend(['train', 'validation'], loc='upper right')
-    st.pyplot(fig)
-
-with nn2:
-    '''
-    - Comparing the loss between train and test, even though I can further try to improve my model to decrease the loss,
-    but so far model is not overfitting and running okay. 
-    - As the number of epochs increase, the loss of train sets are descreasing but the validation set. 
-    - I would try to find better nn models after the final week
-    '''
-
-
-
-
-
 
 
 

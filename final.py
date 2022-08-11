@@ -555,7 +555,12 @@ with reg3:
 - And seeing the both training and testing scores, all the regurilized models seem not overfitting
 '''
 
- '''
+
+
+
+
+
+'''
 # NN
 model = keras.Sequential(
     [

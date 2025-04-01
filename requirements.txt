@@ -1,15 +1,17 @@
-streamlit==1.0.0
+streamlit==1.30.0          # Upgrade from 1.0.0 to a stable recent version
+protobuf==3.20.3           # Required for compatibility with newer Python
+
 numpy==1.19.5
-pandas == 1.3.1
+pandas==1.3.1
 scikit-learn==1.0.1
 altair==4.1.0
 
-nltk == 3.6.1
-keras == 2.7.0
-tensorflow == 2.7.0
-wordcloud == 1.8.1
-folium == 0.12.1
-scipy == 1.6.2
-seaborn == 0.11.1
-Pydeck == 0.7.0
-streamlit-folium == 0.4.0
+nltk==3.6.1
+keras==2.7.0
+tensorflow==2.7.0
+wordcloud==1.8.1
+folium==0.12.1
+scipy==1.6.2
+seaborn==0.11.1
+pydeck==0.7.0              # lowercase! Python package names are case-sensitive
+streamlit-folium==0.4.0
